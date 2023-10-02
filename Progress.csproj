@@ -57,7 +57,7 @@
   <ItemGroup>
     <Compile Include="BaseFunction\BaseGeometryClass.cs" />
     <Compile Include="BaseFunction\F.cs" />
-    <Compile Include="Progress\Forms\ViewModel\ViewModel.cs" />
+    <Compile Include="Progress\ViewModel\ViewModel.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="Progress\Forms\ProgressWindow.cs">
       <SubType>Form</SubType>

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Progress
@@ -22,7 +18,8 @@ namespace Progress
             Size screenSize = Screen.PrimaryScreen.WorkingArea.Size;
             Location = new Point(screenSize.Width / 2 - Width / 2, screenSize.Height / 2 - Height / 2);          
 
-            Check();
+            //проверяет требуется ли отображать дополнительный бар и управляет его видимостью
+            CheckSubBar();
 
             _ProgressDialog = dialog;
             if (_ProgressDialog != null)
@@ -84,7 +81,7 @@ namespace Progress
                 if (_ProgressDialog.UseSubBar != UseSubBar) UseSubBar = _ProgressDialog.UseSubBar;
                 if ((int)_ProgressDialog.MainBarValue != MainBarValue) MainBarValue = (int)_ProgressDialog.MainBarValue;
                 if ((int)_ProgressDialog.SubBarValue != SubBarValue) SubBarValue = (int)_ProgressDialog.SubBarValue;
-                Check();
+                CheckSubBar();
             }
         }
         /// <summary>
@@ -96,7 +93,7 @@ namespace Progress
             set 
             { 
                 _useSubBar = value;
-                Check();
+                CheckSubBar();
             }            
         } 
         /// <summary>
@@ -169,7 +166,7 @@ namespace Progress
         /// <summary>
         /// проверяет и настраивает элементы
         /// </summary>
-        private void Check()
+        private void CheckSubBar()
         {
             if (_useSubBar)
             {
