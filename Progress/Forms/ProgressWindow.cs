@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Forms;
 
 namespace Progress
 {
-    public partial class ProgressWindow : Form
-    {
+    public partial class ProgressWindow : Form 
+    {        
         public ProgressWindow(ProgressDialog dialog)
         {
             InitializeComponent();
@@ -18,57 +20,57 @@ namespace Progress
 
             this.StartPosition = FormStartPosition.Manual;
             Size screenSize = Screen.PrimaryScreen.WorkingArea.Size;
-            Location = new Point(screenSize.Width / 2 - Width / 2, screenSize.Height / 2 - Height / 2);
-
-            BW.WorkerReportsProgress = true;
-            BW.WorkerSupportsCancellation = true;
-            this.BW.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BW_DoWork);
-            this.BW.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BW_ProgressChanged);
-            this.Shown += new System.EventHandler(this.ShowIvent);
+            Location = new Point(screenSize.Width / 2 - Width / 2, screenSize.Height / 2 - Height / 2);          
 
             Check();
 
             _ProgressDialog = dialog;
             if (_ProgressDialog != null)
             {
-                Delay = _ProgressDialog.Delay; 
-                Thread thread = new Thread(GetData);
-                thread.IsBackground = true;
-                thread.Start();
+                //получаем первичные данные
+                GetData();
+                //подписываемся на изменение данных
+                _ProgressDialog.OnChange += this.Event;             
             }
         }
-        /// <summary>
-        /// запускаеи воркер после включения формы
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ShowIvent(Object sender, EventArgs e)
+        private void Event(string name)
         {
-            BW.RunWorkerAsync();
-        }
-        /// <summary>
-        /// запускает обновление формы когда воркер объявляет о прогрессе
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BW_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            if (e.ProgressPercentage == 1) GetData();
-        }        
-        /// <summary>
-        /// запускает процесс обновления данных с выбранной задержкой
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BW_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            while (true)
+            if (_ProgressDialog == null) return;
+            //в зависимости от переданного имени меняем соответствующую переменную
+            switch (name)
             {
-                worker.ReportProgress(1);
-                Thread.Sleep(Delay);
-            }
-        }   
+                case "SubMessage":
+                    {
+                        SubMessage = _ProgressDialog.SubMessage;
+                        break;
+                    }
+                case "MainMessage":
+                    {
+                        MainMessage = _ProgressDialog.MainMessage;
+                        break;
+                    }
+                case "MainCancelMessage":
+                    {
+                        MainCancelMessage = _ProgressDialog.MainCancelMessage;
+                        break;
+                    }
+                case "UseSubBar":
+                    {
+                        UseSubBar = _ProgressDialog.UseSubBar;
+                        break;
+                    }
+                case "MainBarValue":
+                    {
+                        MainBarValue = (int)_ProgressDialog.MainBarValue;
+                        break;
+                    }
+                case "SubBarValue":
+                    {
+                        SubBarValue = (int)_ProgressDialog.SubBarValue;
+                        break;
+                    }
+            }   
+        }      
         /// <summary>
         /// обновляет элементы формы
         /// </summary>
@@ -106,7 +108,8 @@ namespace Progress
             set
             {
                 _MainMessage = value;
-                MainMessageLabel.Text = _MainMessage;
+                if (MainMessageLabel.InvokeRequired) MainMessageLabel.Invoke(new Action(() => MainMessageLabel.Text = _MainMessage));
+                else MainMessageLabel.Text = _MainMessage;            
             }           
         }
         /// <summary>
@@ -118,7 +121,8 @@ namespace Progress
             set
             {
                 _SubMessage = value;
-                SubMessageLabel.Text = _SubMessage;
+                if (SubMessageLabel.InvokeRequired) SubMessageLabel.Invoke(new Action(() => SubMessageLabel.Text = _SubMessage));
+                else SubMessageLabel.Text = _SubMessage;
             }
         }
         /// <summary>
@@ -143,7 +147,8 @@ namespace Progress
                 if (value > 100) _MainBarValue = 100;
                 else if (value < 0) _MainBarValue = 0;
                 else _MainBarValue = value;
-                MainBar.Value = _MainBarValue;
+                if (MainBar.InvokeRequired) MainBar.Invoke(new Action(() => MainBar.Value = _MainBarValue));
+                else MainBar.Value = _MainBarValue;       
             }
         }
         /// <summary>
@@ -157,21 +162,10 @@ namespace Progress
                 if (value > 100) _SubBarValue = 100;
                 else if (value < 0) _SubBarValue = 0;
                 else _SubBarValue = value;
-                SubBar.Value = _SubBarValue;
+                if (SubBar.InvokeRequired) SubBar.Invoke(new Action(() => SubBar.Value = _SubBarValue));
+                else SubBar.Value = _SubBarValue;         
             }
-        }
-        /// <summary>
-        /// частота обновления
-        /// </summary>
-        public int Delay
-        {
-            get => _Delay;
-            set
-            {
-                if (value <= 0) _Delay = 100;
-                else _Delay = value;             
-            }
-        }
+        }   
         /// <summary>
         /// проверяет и настраивает элементы
         /// </summary>
@@ -179,17 +173,46 @@ namespace Progress
         {
             if (_useSubBar)
             {
-                if (!this.SubMessageLabel.Visible && !this.SubMessageLabel.InvokeRequired) this.SubMessageLabel.Visible = true;
-                if (!this.SubBar.Visible && !this.SubBar.InvokeRequired) this.SubBar.Visible = true;
+                if (!this.SubMessageLabel.Visible)
+                {
+                    if (this.SubMessageLabel.InvokeRequired)
+                    {
+                        SubMessageLabel.Invoke(new Action(() => this.SubMessageLabel.Visible = true));
+                    }
+                    else this.SubMessageLabel.Visible = true;
+
+                }
+                if (!this.SubBar.Visible)
+                {
+                    if (this.SubBar.InvokeRequired)
+                    {
+                        SubBar.Invoke(new Action(() => this.SubBar.Visible = true));
+                    }
+                    else this.SubBar.Visible = true;
+                }       
             }
             else
             {
-                if (this.SubMessageLabel.Visible && !this.SubMessageLabel.InvokeRequired) this.SubMessageLabel.Visible = false;
-                if (this.SubBar.Visible && !this.SubBar.InvokeRequired) this.SubBar.Visible = false;
+                if (this.SubMessageLabel.Visible)
+                {
+                    if (this.SubMessageLabel.InvokeRequired)
+                    {
+                        SubMessageLabel.Invoke(new Action(() => this.SubMessageLabel.Visible = false));
+                    }
+                    else this.SubMessageLabel.Visible = true;
+
+                }
+                if (this.SubBar.Visible)
+                {
+                    if (this.SubBar.InvokeRequired)
+                    {
+                        SubBar.Invoke(new Action(() => this.SubBar.Visible = false));
+                    }
+                    else this.SubBar.Visible = true;
+                }
             }
         }
 
-        private int _Delay = 100;
         private int _MainBarValue = 0;
         private int _SubBarValue = 0;
         private ProgressDialog _ProgressDialog = null;
@@ -201,8 +224,10 @@ namespace Progress
         private void Cancel_Click(object sender, System.EventArgs e)
         {         
             Cancel.Enabled = false;
-            _ProgressDialog.IsStopNeed = true;
-            MainMessageLabel.Text = MainCancelMessage;            
+            if (MainMessageLabel.InvokeRequired) MainMessageLabel.Invoke(new Action(() => MainMessageLabel.Text = MainCancelMessage));
+            else MainMessageLabel.Text = MainCancelMessage;
+            _ProgressDialog.OnChange -= Event;
+            _ProgressDialog.IsStopNeed = true;     
         }      
 
     }   

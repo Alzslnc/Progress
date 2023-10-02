@@ -3,10 +3,8 @@ using System.Threading;
 
 namespace Progress
 {
-    public class ProgressDialog : IDisposable
-    {
-        //объект для блокировки объектов при обращении из разных потоков
-        private readonly object Lock = new object();
+    public class ProgressDialog : ViewModel, IDisposable
+    {        
         public ProgressDialog()
         {              
         }       
@@ -37,6 +35,7 @@ namespace Progress
         /// </summary>
         public void Stop()
         { 
+            Window?.Close();
             Thread?.Abort();
             IsRunning = false;
             Thread = null;        
@@ -46,10 +45,10 @@ namespace Progress
         /// </summary>
         public void StepMainBar()
         {
-            _SubBarValue = 0;
+            SubBarValue = 0;
             _CurrentSubStep = 0;
             if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += 1;
-            _MainBarValue = _CurrentMainStep / _MainBarCount * 100;
+            MainBarValue = _CurrentMainStep / _MainBarCount * 100;
         }
         /// <summary>
         /// переход к следующему шагу дополнительнго бара
@@ -57,10 +56,9 @@ namespace Progress
         public void StepSubBar()
         {
             if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += 1;
-            _SubBarValue = _CurrentSubStep / _SubBarCount * 100;
-            _MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
+            SubBarValue = _CurrentSubStep / _SubBarCount * 100;
+            MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
         }
-
         /// <summary>
         /// число в основном счетчике
         /// </summary>
@@ -149,7 +147,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _UseSubBar = value;               
+                    SetData(ref _UseSubBar, value);               
                 }
             }
         }
@@ -169,7 +167,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _MainMessage = value;  
+                    SetData(ref _MainMessage, value);  
                 }
             }
         }
@@ -189,7 +187,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _SubMessage = value;                  
+                    SetData(ref _SubMessage, value);                               
                 }
             }
         }
@@ -209,7 +207,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _MainCancelMessage = value;
+                    SetData(ref _MainCancelMessage, value);
                 }
             }
         }
@@ -229,7 +227,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _MainBarValue = value;
+                    SetData(ref _MainBarValue, value);                 
                 }
             }
         }
@@ -249,37 +247,16 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    _SubBarValue = value;
+                    SetData(ref _SubBarValue, value);  
                 }
             }
         }
-        /// <summary>
-        /// частота обновления в микросекундах
-        /// </summary>
-        public int Delay
-        {
-            get
-            {
-                lock (Lock)
-                {
-                    return _Delay;
-                }
-            }
-            set
-            {
-                lock (Lock)
-                {
-                    _Delay = value;
-                }
-            }
-        }
-
+      
         private double _MainBarCount = 1;
         private double _SubBarCount = 1;
         private double _CurrentMainStep = 0;
         private double _CurrentSubStep = 0;
-
-        private int _Delay = 100;
+     
         private double _MainBarValue = 0;
         private double _SubBarValue = 0;
         private bool _IsStopNeed = false;
@@ -290,7 +267,12 @@ namespace Progress
         public bool IsDisposed { get; private set; } = false;       
         public void Dispose()
         {
-            if (IsDisposed) return;           
+            if (IsDisposed) return;
+            if (Window != null)
+            {
+                if (Window.InvokeRequired) Window.Invoke(new Action(() => Window.Close()));
+                else Window.Close();
+            }                
             Thread?.Abort();
             Thread = null;
             IsDisposed = true;          

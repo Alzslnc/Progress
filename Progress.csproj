@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="BaseFunction\BaseGeometryClass.cs" />
     <Compile Include="BaseFunction\F.cs" />
+    <Compile Include="Progress\Forms\ViewModel\ViewModel.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="Progress\Forms\ProgressWindow.cs">
       <SubType>Form</SubType>
@@ -72,5 +73,6 @@
       <DependentUpon>ProgressWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

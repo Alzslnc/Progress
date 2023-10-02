@@ -33,7 +33,6 @@
             this.SubMessageLabel = new System.Windows.Forms.Label();
             this.MainBar = new System.Windows.Forms.ProgressBar();
             this.SubBar = new System.Windows.Forms.ProgressBar();
-            this.BW = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // MainMessageLabel
@@ -112,6 +111,5 @@
         private System.Windows.Forms.Label SubMessageLabel;
         private System.Windows.Forms.ProgressBar MainBar;
         private System.Windows.Forms.ProgressBar SubBar;
-        private System.ComponentModel.BackgroundWorker BW;
     }
 }

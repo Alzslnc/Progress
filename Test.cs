@@ -5,16 +5,14 @@ using Autodesk.AutoCAD.Geometry;
 
 namespace Progress
 {
-    public class Test
+    public class Test 
     {
         [CommandMethod("test002")]
         public void test002()
         {
             //запускаем класс прогресса
             using (ProgressDialog dialog = new ProgressDialog())
-            {
-                //устанаваливаем частоту обновления
-                dialog.Delay = 200;
+            {                
                 //основаная надпись
                 dialog.MainMessage = "Строим круги";
                 //надрись при нажатии на клавишу остановки
