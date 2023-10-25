@@ -40,7 +40,7 @@
             this.MainMessageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.MainMessageLabel.Location = new System.Drawing.Point(12, 9);
             this.MainMessageLabel.Name = "MainMessageLabel";
-            this.MainMessageLabel.Size = new System.Drawing.Size(376, 51);
+            this.MainMessageLabel.Size = new System.Drawing.Size(476, 51);
             this.MainMessageLabel.TabIndex = 0;
             this.MainMessageLabel.Text = " ";
             this.MainMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -48,9 +48,9 @@
             // Cancel
             // 
             this.Cancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Cancel.Location = new System.Drawing.Point(12, 190);
+            this.Cancel.Location = new System.Drawing.Point(12, 240);
             this.Cancel.Name = "Cancel";
-            this.Cancel.Size = new System.Drawing.Size(376, 48);
+            this.Cancel.Size = new System.Drawing.Size(476, 48);
             this.Cancel.TabIndex = 1;
             this.Cancel.Text = "Отменить";
             this.Cancel.UseVisualStyleBackColor = true;
@@ -62,31 +62,31 @@
             this.SubMessageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.SubMessageLabel.Location = new System.Drawing.Point(12, 126);
             this.SubMessageLabel.Name = "SubMessageLabel";
-            this.SubMessageLabel.Size = new System.Drawing.Size(376, 20);
+            this.SubMessageLabel.Size = new System.Drawing.Size(476, 45);
             this.SubMessageLabel.TabIndex = 2;
             this.SubMessageLabel.Text = " ";
             this.SubMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainBar
             // 
-            this.MainBar.Location = new System.Drawing.Point(16, 63);
+            this.MainBar.Location = new System.Drawing.Point(12, 63);
             this.MainBar.Name = "MainBar";
-            this.MainBar.Size = new System.Drawing.Size(372, 60);
+            this.MainBar.Size = new System.Drawing.Size(476, 60);
             this.MainBar.TabIndex = 3;
             // 
             // SubBar
             // 
             this.SubBar.Enabled = false;
-            this.SubBar.Location = new System.Drawing.Point(12, 149);
+            this.SubBar.Location = new System.Drawing.Point(12, 174);
             this.SubBar.Name = "SubBar";
-            this.SubBar.Size = new System.Drawing.Size(376, 35);
+            this.SubBar.Size = new System.Drawing.Size(476, 60);
             this.SubBar.TabIndex = 4;
             // 
             // ProgressWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 250);
+            this.ClientSize = new System.Drawing.Size(500, 300);
             this.ControlBox = false;
             this.Controls.Add(this.SubBar);
             this.Controls.Add(this.MainBar);
@@ -95,9 +95,9 @@
             this.Controls.Add(this.MainMessageLabel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(400, 250);
+            this.MaximumSize = new System.Drawing.Size(500, 300);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(400, 250);
+            this.MinimumSize = new System.Drawing.Size(500, 30);
             this.Name = "ProgressWindow";
             this.Text = "wait";
             this.ResumeLayout(false);

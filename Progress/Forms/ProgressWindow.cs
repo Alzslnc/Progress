@@ -225,7 +225,13 @@ namespace Progress
             else MainMessageLabel.Text = MainCancelMessage;
             _ProgressDialog.OnChange -= Event;
             _ProgressDialog.IsStopNeed = true;     
-        }      
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            ControlPaint.DrawBorder(e.Graphics, new Rectangle(1, 1, this.Width - 2, this.Height - 2), Color.Black, ButtonBorderStyle.Solid);
+        }
 
     }   
 }

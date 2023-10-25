@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="BaseFunction\BaseGeometryClass.cs" />
     <Compile Include="BaseFunction\F.cs" />
+    <Compile Include="Progress\ProgressDialog.cs" />
     <Compile Include="Progress\ViewModel\ViewModel.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="Progress\Forms\ProgressWindow.cs">
@@ -65,7 +66,6 @@
     <Compile Include="Progress\Forms\ProgressWindow.Designer.cs">
       <DependentUpon>ProgressWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Progress\ProgressDialog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -28,7 +28,7 @@ namespace Progress
         private void StartNewThread()
         {
             Window = new ProgressWindow(this);
-            Window.ShowDialog();
+            Window.ShowDialog();            
         }
         /// <summary>
         /// при стопе останавливаем поток, форма умрет вместе с потоком
@@ -45,8 +45,11 @@ namespace Progress
         /// </summary>
         public void StepMainBar()
         {
-            SubBarValue = 0;
-            _CurrentSubStep = 0;
+            if (BarLink)
+            {
+                SubBarValue = 0;
+                _CurrentSubStep = 0;              
+            }
             if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += 1;
             MainBarValue = _CurrentMainStep / _MainBarCount * 100;
         }
@@ -60,44 +63,44 @@ namespace Progress
             MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
         }
         /// <summary>
-        /// число в основном счетчике
+        /// сохраняет текущее состояние дополнительного бара
         /// </summary>
-        public double SetMainBarCount
-        {
-            get
-            {
-                lock (Lock)
-                {
-                    return _MainBarCount;
-                }
-            }
-            set
-            {
-                lock (Lock)
-                {
-                    _MainBarCount = value;
-                }
-            }
+        public void GetSubSnapShot()
+        {           
+            _PictureSubBarValue = SubBarValue;  
+            _PictureSubBarCount = SubBarCount;      
+            _PictureSubMessage = SubMessage;     
+            _PictureCurrentSubStep = CurrentSubStep;
         }
         /// <summary>
-        /// число в дополнительном счетчике
+        /// сохраняет текущее состояние основного бара
         /// </summary>
-        public double SetSubBarCount
+        public void GetMainSnapShot()
         {
-            get
-            {
-                lock (Lock)
-                {
-                    return _SubBarCount;
-                }
-            }
-            set
-            {
-                lock (Lock)
-                {
-                    _SubBarCount = value;
-                }
-            }
+            _PictureMainBarValue = MainBarValue;
+            _PictureMainBarCount = MainBarCount;
+            _PictureMainMessage = MainMessage;
+            _PictureCurrentMainStep = CurrentMainStep;
+        } 
+        /// <summary>
+        /// восстанаваливает сохраненное состояние дополнительного бара
+        /// </summary>
+        public void SetSubSnapShot()
+        {
+            SubBarValue = _PictureSubBarValue;
+            SubBarCount = _PictureSubBarCount;
+            SubMessage = _PictureSubMessage;
+            CurrentSubStep = _PictureCurrentSubStep;
+        }
+        /// <summary>
+        /// восстанаваливает сохраненное состояние основного бара
+        /// </summary>
+        public void SetMainSnapShot()
+        {
+            MainBarValue = _PictureMainBarValue;
+            MainBarCount = _PictureMainBarCount;
+            MainMessage = _PictureMainMessage;
+            CurrentMainStep = _PictureCurrentMainStep;
         }
         /// <summary>
         /// форма
@@ -251,7 +254,91 @@ namespace Progress
                 }
             }
         }
-      
+        public double MainBarCount
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _MainBarCount;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _MainBarCount, value);
+                }
+            }
+        }
+        public double SubBarCount
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _SubBarCount;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _SubBarCount, value);
+                }
+            }
+        }
+        public double CurrentMainStep
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _CurrentMainStep;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _CurrentMainStep, value);
+                }
+            }
+        }
+        public double CurrentSubStep
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _CurrentSubStep;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _CurrentSubStep, value);
+                }
+            }
+        }
+        public bool BarLink
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _BarLink;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _BarLink, value);
+                }
+            }
+        }
         private double _MainBarCount = 1;
         private double _SubBarCount = 1;
         private double _CurrentMainStep = 0;
@@ -259,11 +346,22 @@ namespace Progress
      
         private double _MainBarValue = 0;
         private double _SubBarValue = 0;
+        private bool _BarLink = false;
         private bool _IsStopNeed = false;
         private bool _UseSubBar = false;
         private string _MainMessage = string.Empty;
         private string _SubMessage = string.Empty;
         private string _MainCancelMessage = string.Empty;
+
+        private double _PictureMainBarValue = 0;
+        private double _PictureSubBarValue = 0;
+        private double _PictureMainBarCount = 0;
+        private double _PictureSubBarCount = 0;
+        private string _PictureMainMessage = string.Empty;
+        private string _PictureSubMessage = string.Empty;
+        private double _PictureCurrentMainStep = 0;
+        private double _PictureCurrentSubStep = 0;
+
         public bool IsDisposed { get; private set; } = false;       
         public void Dispose()
         {
