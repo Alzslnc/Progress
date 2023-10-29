@@ -5,6 +5,8 @@ namespace Progress
 {
     public class ProgressDialog : ViewModel, IDisposable
     {        
+        private readonly object stopLock = new object();
+
         public ProgressDialog()
         {              
         }       
@@ -28,17 +30,16 @@ namespace Progress
         private void StartNewThread()
         {
             Window = new ProgressWindow(this);
-            Window.ShowDialog();            
+            Window.ShowDialog();   
+            Thread.CurrentThread.Interrupt();
         }
         /// <summary>
         /// при стопе останавливаем поток, форма умрет вместе с потоком
         /// </summary>
         public void Stop()
         { 
-            Window?.Close();
-            Thread?.Abort();
-            IsRunning = false;
-            Thread = null;        
+            CloseWindow = true;
+           //Window?.Close(); 
         }
         /// <summary>
         /// переход к следующему шагу основного бара
@@ -60,7 +61,7 @@ namespace Progress
         {
             if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += 1;
             SubBarValue = _CurrentSubStep / _SubBarCount * 100;
-            MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
+            if (BarLink) MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
         }
         /// <summary>
         /// сохраняет текущее состояние дополнительного бара
@@ -121,14 +122,14 @@ namespace Progress
         {
             get 
             {
-                lock (Lock)
+                lock (stopLock)
                 {
                     return _IsStopNeed;
                 }               
             }
             set             
             {
-                lock (Lock)
+                lock (stopLock)
                 {
                     _IsStopNeed = value;
                 }
@@ -230,7 +231,11 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _MainBarValue, value);                 
+                    SetData(ref _MainBarValue, value);
+                    if (_MainBarValue == 0)
+                    {
+                        _CurrentMainStep = 0;
+                    }
                 }
             }
         }
@@ -250,7 +255,11 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _SubBarValue, value);  
+                    SetData(ref _SubBarValue, value);
+                    if (_SubBarValue == 0)
+                    { 
+                        _CurrentSubStep = 0;
+                    }
                 }
             }
         }
@@ -339,6 +348,23 @@ namespace Progress
                 }
             }
         }
+        public bool CloseWindow
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _CloseWindow;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _CloseWindow, value);
+                }
+            }
+        }
         private double _MainBarCount = 1;
         private double _SubBarCount = 1;
         private double _CurrentMainStep = 0;
@@ -348,6 +374,7 @@ namespace Progress
         private double _SubBarValue = 0;
         private bool _BarLink = false;
         private bool _IsStopNeed = false;
+        private bool _CloseWindow = false;
         private bool _UseSubBar = false;
         private string _MainMessage = string.Empty;
         private string _SubMessage = string.Empty;
@@ -366,11 +393,13 @@ namespace Progress
         public void Dispose()
         {
             if (IsDisposed) return;
-            if (Window != null)
+            Thread.Sleep(100);
+            if (!CloseWindow)
             {
                 if (Window.InvokeRequired) Window.Invoke(new Action(() => Window.Close()));
-                else Window.Close();
-            }                
+                else Window.Close();   
+            }
+            Thread.Sleep(100);
             Thread?.Abort();
             Thread = null;
             IsDisposed = true;          
