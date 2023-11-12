@@ -40,7 +40,7 @@
             this.MainMessageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.MainMessageLabel.Location = new System.Drawing.Point(12, 9);
             this.MainMessageLabel.Name = "MainMessageLabel";
-            this.MainMessageLabel.Size = new System.Drawing.Size(476, 51);
+            this.MainMessageLabel.Size = new System.Drawing.Size(476, 67);
             this.MainMessageLabel.TabIndex = 0;
             this.MainMessageLabel.Text = " ";
             this.MainMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -58,28 +58,26 @@
             // 
             // SubMessageLabel
             // 
-            this.SubMessageLabel.Enabled = false;
             this.SubMessageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.SubMessageLabel.Location = new System.Drawing.Point(12, 126);
+            this.SubMessageLabel.Location = new System.Drawing.Point(12, 142);
             this.SubMessageLabel.Name = "SubMessageLabel";
-            this.SubMessageLabel.Size = new System.Drawing.Size(476, 45);
+            this.SubMessageLabel.Size = new System.Drawing.Size(476, 55);
             this.SubMessageLabel.TabIndex = 2;
             this.SubMessageLabel.Text = " ";
             this.SubMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MainBar
             // 
-            this.MainBar.Location = new System.Drawing.Point(12, 63);
+            this.MainBar.Location = new System.Drawing.Point(12, 79);
             this.MainBar.Name = "MainBar";
             this.MainBar.Size = new System.Drawing.Size(476, 60);
             this.MainBar.TabIndex = 3;
             // 
             // SubBar
             // 
-            this.SubBar.Enabled = false;
-            this.SubBar.Location = new System.Drawing.Point(12, 174);
+            this.SubBar.Location = new System.Drawing.Point(12, 200);
             this.SubBar.Name = "SubBar";
-            this.SubBar.Size = new System.Drawing.Size(476, 60);
+            this.SubBar.Size = new System.Drawing.Size(476, 34);
             this.SubBar.TabIndex = 4;
             // 
             // ProgressWindow

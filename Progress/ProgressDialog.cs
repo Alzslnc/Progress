@@ -51,7 +51,7 @@ namespace Progress
                 SubBarValue = 0;
                 _CurrentSubStep = 0;              
             }
-            if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += 1;
+            if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += MainStep;
             MainBarValue = _CurrentMainStep / _MainBarCount * 100;
         }
         /// <summary>
@@ -59,7 +59,7 @@ namespace Progress
         /// </summary>
         public void StepSubBar()
         {
-            if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += 1;
+            if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += SubStep;
             SubBarValue = _CurrentSubStep / _SubBarCount * 100;
             if (BarLink) MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
         }
@@ -331,6 +331,40 @@ namespace Progress
                 }
             }
         }
+        public double SubStep
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _SubStep;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _SubStep, value);
+                }
+            }
+        }
+        public double MainStep
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _MainStep;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _MainStep, value);
+                }
+            }
+        }
         public bool BarLink
         {
             get
@@ -369,7 +403,9 @@ namespace Progress
         private double _SubBarCount = 1;
         private double _CurrentMainStep = 0;
         private double _CurrentSubStep = 0;
-     
+        private double _MainStep = 1;
+        private double _SubStep = 1;
+
         private double _MainBarValue = 0;
         private double _SubBarValue = 0;
         private bool _BarLink = false;

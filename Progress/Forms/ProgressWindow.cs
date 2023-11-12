@@ -106,7 +106,16 @@ namespace Progress
                 _useSubBar = value;
                 CheckSubBar();
             }            
-        } 
+        }
+        public bool UseCancel
+        {
+            get => _useCancel;
+            set
+            {
+                _useCancel = value;
+                CheckCancel();
+            }
+        }
         /// <summary>
         /// текст над первым баром
         /// </summary>
@@ -191,6 +200,8 @@ namespace Progress
                     }
                     else this.SubMessageLabel.Visible = true;
 
+                    if (this.InvokeRequired) this.Invoke(new Action(() => this.Height += 90));
+                    else this.Height += 90;
                 }
                 if (!this.SubBar.Visible)
                 {
@@ -209,8 +220,10 @@ namespace Progress
                     {
                         SubMessageLabel.Invoke(new Action(() => this.SubMessageLabel.Visible = false));
                     }
-                    else this.SubMessageLabel.Visible = true;
+                    else this.SubMessageLabel.Visible = false;
 
+                    if (this.InvokeRequired) this.Invoke(new Action(() => this.Height -= 90));
+                    else this.Height -= 90;
                 }
                 if (this.SubBar.Visible)
                 {
@@ -218,7 +231,38 @@ namespace Progress
                     {
                         SubBar.Invoke(new Action(() => this.SubBar.Visible = false));
                     }
-                    else this.SubBar.Visible = true;
+                    else this.SubBar.Visible = false;
+                }
+            }
+        }
+        private void CheckCancel()
+        {
+            if (_useCancel)
+            {               
+                if (!Cancel.Visible)
+                {
+                    if (Cancel.InvokeRequired)
+                    {
+                        Cancel.Invoke(new Action(() => Cancel.Visible = true));
+                    }
+                    else Cancel.Visible = true;
+
+                    if (this.InvokeRequired) this.Invoke(new Action(() => this.Height += 50));
+                    else this.Height += 50;
+                }
+            }
+            else
+            {             
+                if (Cancel.Visible)
+                {
+                    if (Cancel.InvokeRequired)
+                    {
+                        Cancel.Invoke(new Action(() => this.Cancel.Visible = false));
+                    }
+                    else Cancel.Visible = false;
+
+                    if (this.InvokeRequired) this.Invoke(new Action(() => this.Height -= 50));
+                    else this.Height -= 50;
                 }
             }
         }
@@ -226,7 +270,8 @@ namespace Progress
         private int _MainBarValue = 0;
         private int _SubBarValue = 0;
         private readonly ProgressDialog _ProgressDialog = null;
-        private bool _useSubBar = false;
+        private bool _useSubBar = true;
+        private bool _useCancel = true;
         private string _MainMessage = string.Empty;
         private string _SubMessage = string.Empty;
         private string _MainCancelMessage = "Идет отмена";
