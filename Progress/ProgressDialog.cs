@@ -3,18 +3,15 @@ using System.Threading;
 
 namespace Progress
 {
-    public class ProgressDialog : ViewModel, IDisposable
-    {        
+    public class ProgressDialog : Base, IDisposable
+    {
         private readonly object stopLock = new object();
 
-        public ProgressDialog()
-        {              
-        }       
         /// <summary>
         /// запуск бара
         /// </summary>
         public void Start()
-        { 
+        {
             if (IsRunning) return;
             IsRunning = true;
             //создаем новый поток и запускаем его
@@ -30,16 +27,15 @@ namespace Progress
         private void StartNewThread()
         {
             Window = new ProgressWindow(this);
-            Window.ShowDialog();   
+            Window.ShowDialog();
             Thread.CurrentThread.Interrupt();
         }
         /// <summary>
         /// при стопе останавливаем поток, форма умрет вместе с потоком
         /// </summary>
         public void Stop()
-        { 
+        {
             CloseWindow = true;
-           //Window?.Close(); 
         }
         /// <summary>
         /// переход к следующему шагу основного бара
@@ -49,10 +45,12 @@ namespace Progress
             if (BarLink)
             {
                 SubBarValue = 0;
-                _CurrentSubStep = 0;              
+                _CurrentSubStep = 0;
             }
             if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += MainStep;
             MainBarValue = _CurrentMainStep / _MainBarCount * 100;
+
+            if (_AddCurrentValueToMessage) MainMessage = _MainMessageValue;
         }
         /// <summary>
         /// переход к следующему шагу дополнительнго бара
@@ -62,46 +60,48 @@ namespace Progress
             if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += SubStep;
             SubBarValue = _CurrentSubStep / _SubBarCount * 100;
             if (BarLink) MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
+
+            if (_AddCurrentValueToMessage) SubMessage = _SubMessageValue;
         }
         /// <summary>
         /// сохраняет текущее состояние дополнительного бара
         /// </summary>
         public void GetSubSnapShot()
-        {           
-            _PictureSubBarValue = SubBarValue;  
-            _PictureSubBarCount = SubBarCount;      
-            _PictureSubMessage = SubMessage;     
-            _PictureCurrentSubStep = CurrentSubStep;
+        {
+            _SnapShotSubBarValue = SubBarValue;
+            _SnapShotSubBarCount = SubBarCount;
+            _SnapShotSubMessage = SubMessage;
+            _SnapShotCurrentSubStep = CurrentSubStep;
         }
         /// <summary>
         /// сохраняет текущее состояние основного бара
         /// </summary>
         public void GetMainSnapShot()
         {
-            _PictureMainBarValue = MainBarValue;
-            _PictureMainBarCount = MainBarCount;
-            _PictureMainMessage = MainMessage;
-            _PictureCurrentMainStep = CurrentMainStep;
-        } 
+            _SnapShotMainBarValue = MainBarValue;
+            _SnapShotMainBarCount = MainBarCount;
+            _SnapShotMainMessage = MainMessage;
+            _SnapShotCurrentMainStep = CurrentMainStep;
+        }
         /// <summary>
         /// восстанаваливает сохраненное состояние дополнительного бара
         /// </summary>
         public void SetSubSnapShot()
         {
-            SubBarValue = _PictureSubBarValue;
-            SubBarCount = _PictureSubBarCount;
-            SubMessage = _PictureSubMessage;
-            CurrentSubStep = _PictureCurrentSubStep;
+            SubBarValue = _SnapShotSubBarValue;
+            SubBarCount = _SnapShotSubBarCount;
+            SubMessage = _SnapShotSubMessage;
+            CurrentSubStep = _SnapShotCurrentSubStep;
         }
         /// <summary>
         /// восстанаваливает сохраненное состояние основного бара
         /// </summary>
         public void SetMainSnapShot()
         {
-            MainBarValue = _PictureMainBarValue;
-            MainBarCount = _PictureMainBarCount;
-            MainMessage = _PictureMainMessage;
-            CurrentMainStep = _PictureCurrentMainStep;
+            MainBarValue = _SnapShotMainBarValue;
+            MainBarCount = _SnapShotMainBarCount;
+            MainMessage = _SnapShotMainMessage;
+            CurrentMainStep = _SnapShotCurrentMainStep;
         }
         /// <summary>
         /// форма
@@ -118,22 +118,22 @@ namespace Progress
         /// <summary>
         /// маркер нажатой кнопки отмены на форме
         /// </summary>
-        public bool IsStopNeed 
+        public bool IsStopNeed
         {
-            get 
+            get
             {
                 lock (stopLock)
                 {
                     return _IsStopNeed;
-                }               
+                }
             }
-            set             
+            set
             {
                 lock (stopLock)
                 {
                     _IsStopNeed = value;
                 }
-            }        
+            }
         }
         /// <summary>
         /// маркер что надо использовать дополнительный бар
@@ -151,7 +151,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _UseSubBar, value);               
+                    SetData(ref _UseSubBar, value);
                 }
             }
         }
@@ -171,7 +171,10 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _MainMessage, value);  
+                    _MainMessageValue = value;
+                    string message = value;
+                    if (_AddCurrentValueToMessage) message += "\n (" + _CurrentMainStep + " из " + _MainBarCount + ")";
+                    SetData(ref _MainMessage, message);
                 }
             }
         }
@@ -191,7 +194,10 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _SubMessage, value);                               
+                    _SubMessageValue = value;
+                    string message = value;
+                    if (_AddCurrentValueToMessage) message += "\n (" + _CurrentSubStep + " из " + _SubBarCount + ")";
+                    SetData(ref _SubMessage, message);
                 }
             }
         }
@@ -216,7 +222,7 @@ namespace Progress
             }
         }
         /// <summary>
-        /// счетчик основного бара
+        /// позиция счетчика основного бара
         /// </summary>
         public double MainBarValue
         {
@@ -240,7 +246,7 @@ namespace Progress
             }
         }
         /// <summary>
-        /// счетчик дополнительного бара
+        /// позиция счетчика дополнительного бара
         /// </summary>
         public double SubBarValue
         {
@@ -257,12 +263,15 @@ namespace Progress
                 {
                     SetData(ref _SubBarValue, value);
                     if (_SubBarValue == 0)
-                    { 
+                    {
                         _CurrentSubStep = 0;
                     }
                 }
             }
         }
+        /// <summary>
+        /// всего считающихся объектов основного счетчика
+        /// </summary>
         public double MainBarCount
         {
             get
@@ -280,6 +289,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// всего считающихся объектов дополнительного счетчика
+        /// </summary>
         public double SubBarCount
         {
             get
@@ -297,6 +309,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// текущий посчитанный объект основного счетчика
+        /// </summary>
         public double CurrentMainStep
         {
             get
@@ -314,6 +329,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// текущий посчитанный объект дополнительного счетчика
+        /// </summary>
         public double CurrentSubStep
         {
             get
@@ -331,6 +349,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// число объектов прибавляющихся к дополнительному счетчику при одном шаге
+        /// </summary>
         public double SubStep
         {
             get
@@ -348,6 +369,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// число объектов прибавляющихся к основному счетчику при одном шаге
+        /// </summary>
         public double MainStep
         {
             get
@@ -365,6 +389,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// зависит ли основной счетчик от дополнительного?
+        /// </summary>
         public bool BarLink
         {
             get
@@ -382,6 +409,9 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// число объектов прибавляющихся к дополнительному счетчику при одном шаге
+        /// </summary>
         public bool CloseWindow
         {
             get
@@ -399,6 +429,47 @@ namespace Progress
                 }
             }
         }
+        /// <summary>
+        /// Включить кнопку отмены?
+        /// </summary>
+        public bool UseCancelButton
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _UseCancelButton;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _UseCancelButton, value);
+                }
+            }
+        }
+        /// <summary>
+        /// Показывать число объектов цифрами в сообщении?
+        /// </summary>
+        public bool AddCurrentValueToMessage
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _AddCurrentValueToMessage;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    SetData(ref _AddCurrentValueToMessage, value);
+                }
+            }
+        }
+
         private double _MainBarCount = 1;
         private double _SubBarCount = 1;
         private double _CurrentMainStep = 0;
@@ -414,31 +485,30 @@ namespace Progress
         private bool _UseSubBar = false;
         private string _MainMessage = string.Empty;
         private string _SubMessage = string.Empty;
+        private string _MainMessageValue = string.Empty;
+        private string _SubMessageValue = string.Empty;
         private string _MainCancelMessage = string.Empty;
+        private bool _UseCancelButton = true;
+        private bool _AddCurrentValueToMessage = true;
 
-        private double _PictureMainBarValue = 0;
-        private double _PictureSubBarValue = 0;
-        private double _PictureMainBarCount = 0;
-        private double _PictureSubBarCount = 0;
-        private string _PictureMainMessage = string.Empty;
-        private string _PictureSubMessage = string.Empty;
-        private double _PictureCurrentMainStep = 0;
-        private double _PictureCurrentSubStep = 0;
 
-        public bool IsDisposed { get; private set; } = false;       
+        private double _SnapShotMainBarValue = 0;
+        private double _SnapShotSubBarValue = 0;
+        private double _SnapShotMainBarCount = 0;
+        private double _SnapShotSubBarCount = 0;
+        private string _SnapShotMainMessage = string.Empty;
+        private string _SnapShotSubMessage = string.Empty;
+        private double _SnapShotCurrentMainStep = 0;
+        private double _SnapShotCurrentSubStep = 0;
+
+        public bool IsDisposed { get; private set; } = false;
         public void Dispose()
         {
             if (IsDisposed) return;
             Thread.Sleep(100);
-            if (!CloseWindow)
-            {
-                if (Window.InvokeRequired) Window.Invoke(new Action(() => Window.Close()));
-                else Window.Close();   
-            }
-            Thread.Sleep(100);
             Thread?.Abort();
             Thread = null;
-            IsDisposed = true;          
+            IsDisposed = true;
         }
     }
 }

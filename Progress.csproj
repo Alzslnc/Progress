@@ -62,7 +62,7 @@
       <DependentUpon>ProgressWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Progress\ProgressDialog.cs" />
-    <Compile Include="Progress\ViewModel\ViewModel.cs" />
+    <Compile Include="Progress\Base.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

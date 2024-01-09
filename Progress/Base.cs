@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Progress
 {
-    public abstract class ViewModel
+    public abstract class Base
     {
         /// <summary>
         /// создаем делегат хранящий имя
