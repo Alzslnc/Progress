@@ -4,14 +4,14 @@ using System.Threading;
 namespace Progress
 {
     public class ProgressDialog : Base, IDisposable
-    {
+    {        
         private readonly object stopLock = new object();
-
+                     
         /// <summary>
         /// запуск бара
         /// </summary>
         public void Start()
-        {
+        { 
             if (IsRunning) return;
             IsRunning = true;
             //создаем новый поток и запускаем его
@@ -27,16 +27,36 @@ namespace Progress
         private void StartNewThread()
         {
             Window = new ProgressWindow(this);
-            Window.ShowDialog();
+            Window.ShowDialog();   
             Thread.CurrentThread.Interrupt();
         }
         /// <summary>
         /// при стопе останавливаем поток, форма умрет вместе с потоком
         /// </summary>
         public void Stop()
-        {
-            CloseWindow = true;
+        { 
+            CloseWindow = true;        
         }
+        /// <summary>
+        /// сброс основного счетчика
+        /// </summary>
+        public void MainRestart(string newMessage, int newCount)
+        {
+            MainBarValue = 0;            
+            CurrentMainStep = 0;
+            MainBarCount = newCount;
+            MainMessage = newMessage;
+        }
+        /// <summary>
+        /// сброс дополнительного счетчика
+        /// </summary>
+        public void SubRestart(string newMessage, int newCount)
+        {
+            SubBarValue = 0;
+            CurrentSubStep = 0;
+            SubBarCount = newCount;
+            SubMessage = newMessage;
+        }       
         /// <summary>
         /// переход к следующему шагу основного бара
         /// </summary>
@@ -45,12 +65,12 @@ namespace Progress
             if (BarLink)
             {
                 SubBarValue = 0;
-                _CurrentSubStep = 0;
+                _CurrentSubStep = 0;              
             }
             if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += MainStep;
             MainBarValue = _CurrentMainStep / _MainBarCount * 100;
 
-            if (_AddCurrentValueToMessage) MainMessage = _MainMessageValue;
+            if (_AddCurrentValueToMessage) MainMessage = _MainMessageValue;           
         }
         /// <summary>
         /// переход к следующему шагу дополнительнго бара
@@ -67,10 +87,10 @@ namespace Progress
         /// сохраняет текущее состояние дополнительного бара
         /// </summary>
         public void GetSubSnapShot()
-        {
-            _SnapShotSubBarValue = SubBarValue;
-            _SnapShotSubBarCount = SubBarCount;
-            _SnapShotSubMessage = SubMessage;
+        {           
+            _SnapShotSubBarValue = SubBarValue;  
+            _SnapShotSubBarCount = SubBarCount;      
+            _SnapShotSubMessage = SubMessage;     
             _SnapShotCurrentSubStep = CurrentSubStep;
         }
         /// <summary>
@@ -82,7 +102,7 @@ namespace Progress
             _SnapShotMainBarCount = MainBarCount;
             _SnapShotMainMessage = MainMessage;
             _SnapShotCurrentMainStep = CurrentMainStep;
-        }
+        } 
         /// <summary>
         /// восстанаваливает сохраненное состояние дополнительного бара
         /// </summary>
@@ -118,22 +138,22 @@ namespace Progress
         /// <summary>
         /// маркер нажатой кнопки отмены на форме
         /// </summary>
-        public bool IsStopNeed
+        public bool IsStopNeed 
         {
-            get
+            get 
             {
                 lock (stopLock)
                 {
                     return _IsStopNeed;
-                }
+                }               
             }
-            set
+            set             
             {
                 lock (stopLock)
                 {
                     _IsStopNeed = value;
                 }
-            }
+            }        
         }
         /// <summary>
         /// маркер что надо использовать дополнительный бар
@@ -151,7 +171,7 @@ namespace Progress
             {
                 lock (Lock)
                 {
-                    SetData(ref _UseSubBar, value);
+                    SetData(ref _UseSubBar, value);               
                 }
             }
         }
@@ -173,8 +193,8 @@ namespace Progress
                 {
                     _MainMessageValue = value;
                     string message = value;
-                    if (_AddCurrentValueToMessage) message += "\n (" + _CurrentMainStep + " из " + _MainBarCount + ")";
-                    SetData(ref _MainMessage, message);
+                    if (_AddCurrentValueToMessage) message += "\n (" + _CurrentMainStep + " из " + _MainBarCount + ")";                    
+                    SetData(ref _MainMessage, message);  
                 }
             }
         }
@@ -197,7 +217,7 @@ namespace Progress
                     _SubMessageValue = value;
                     string message = value;
                     if (_AddCurrentValueToMessage) message += "\n (" + _CurrentSubStep + " из " + _SubBarCount + ")";
-                    SetData(ref _SubMessage, message);
+                    SetData(ref _SubMessage, message);                                           
                 }
             }
         }
@@ -263,7 +283,7 @@ namespace Progress
                 {
                     SetData(ref _SubBarValue, value);
                     if (_SubBarValue == 0)
-                    {
+                    { 
                         _CurrentSubStep = 0;
                     }
                 }
@@ -501,14 +521,14 @@ namespace Progress
         private double _SnapShotCurrentMainStep = 0;
         private double _SnapShotCurrentSubStep = 0;
 
-        public bool IsDisposed { get; private set; } = false;
+        public bool IsDisposed { get; private set; } = false;       
         public void Dispose()
         {
             if (IsDisposed) return;
-            Thread.Sleep(100);
+            Thread.Sleep(100);            
             Thread?.Abort();
             Thread = null;
-            IsDisposed = true;
+            IsDisposed = true;          
         }
     }
 }
