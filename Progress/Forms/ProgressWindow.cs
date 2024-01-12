@@ -16,10 +16,10 @@ namespace Progress
 
             _ProgressDialog = dialog;
 
-            StartPosition = FormStartPosition.CenterScreen;
-
+            StartPosition = FormStartPosition.CenterScreen; 
+            
             SubMessage = _ProgressDialog.SubMessage;
-            MainMessage = _ProgressDialog.MainMessage;
+            MainMessage = _ProgressDialog.MainMessage;           
             UseCancelButton = _ProgressDialog.UseCancelButton;
             MainBarValue = (int)_ProgressDialog.MainBarValue;
             SubBarValue = (int)_ProgressDialog.SubBarValue;
@@ -185,13 +185,16 @@ namespace Progress
                 {
                     this.Invoke(new Action(() => this.SubBar.Visible = true));
                     this.Invoke(new Action(() => this.SubMessageLabel.Visible = true));
+                    this.Invoke(new Action(() => this.Button_Cancel.Location = new Point(Button_Cancel.Location.X, 283))); 
                 }
                 else
                 {
                     this.SubBar.Visible = true;
                     this.SubMessageLabel.Visible = true;
+                    this.Button_Cancel.Location = new Point(Button_Cancel.Location.X, 283);
                 }
                 height += 130;
+
             }
             else
             {
@@ -199,11 +202,13 @@ namespace Progress
                 {
                     this.Invoke(new Action(() => this.SubBar.Visible = false));
                     this.Invoke(new Action(() => this.SubMessageLabel.Visible = false));
+                    this.Invoke(new Action(() => this.Button_Cancel.Location = new Point(Button_Cancel.Location.X, 153)));
                 }
                 else
                 {
                     this.SubBar.Visible = false;
                     this.SubMessageLabel.Visible = false;
+                    this.Button_Cancel.Location = new Point(Button_Cancel.Location.X, 153);
                 }
             }
 
@@ -256,6 +261,5 @@ namespace Progress
             base.OnPaint(e);
             ControlPaint.DrawBorder(e.Graphics, new Rectangle(1, 1, this.Width - 2, this.Height - 2), Color.Black, ButtonBorderStyle.Solid);
         }
-
     }   
 }
