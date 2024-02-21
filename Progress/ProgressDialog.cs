@@ -56,20 +56,28 @@ namespace Progress
             CurrentSubStep = 0;
             SubBarCount = newCount;
             SubMessage = newMessage;
+            if (BarLink)
+            {
+                _currSubStep++;
+                if (_currSubStep == _SubStepsCount) _currSubStep = 0;
+            }
         }       
         /// <summary>
         /// переход к следующему шагу основного бара
         /// </summary>
         public void StepMainBar()
         {
+            if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += _MainStep;
+
             if (BarLink)
             {
-                SubBarValue = 0;
-                _CurrentSubStep = 0;              
+                lock (Lock)
+                {
+                    _currSubStep = 0;
+                }
             }
-            if (_CurrentMainStep < _MainBarCount) _CurrentMainStep += MainStep;
-            MainBarValue = _CurrentMainStep / _MainBarCount * 100;
 
+            MainBarValue = _CurrentMainStep / _MainBarCount * 100;
             if (_AddCurrentValueToMessage) MainMessage = _MainMessageValue;           
         }
         /// <summary>
@@ -78,11 +86,34 @@ namespace Progress
         public void StepSubBar()
         {
             if (_CurrentSubStep < _SubBarCount) _CurrentSubStep += SubStep;
-            SubBarValue = _CurrentSubStep / _SubBarCount * 100;
-            if (BarLink) MainBarValue += 1 / _SubBarCount / _MainBarCount * 100;
 
+            
+            if (BarLink)
+            {
+                double newMainBarValue = 0;
+
+                lock (Lock) 
+                {
+                    double subBarValue = _CurrentSubStep / _SubBarCount;
+                         
+                    subBarValue = (subBarValue / _SubStepsCount) * _currSubStep;
+                                    
+                    double nextMain = (_CurrentMainStep + 1) / _MainBarCount;
+
+                    if (nextMain > 1) nextMain = 1;
+
+                    double currentMain = _CurrentMainStep / _MainBarCount;
+
+                    newMainBarValue = currentMain + (nextMain - currentMain)* subBarValue;
+
+                    if (newMainBarValue > nextMain) newMainBarValue = nextMain;
+                }
+                if (MainBarValue < newMainBarValue * 100) MainBarValue = newMainBarValue * 100;
+            }           
+            SubBarValue = _CurrentSubStep / _SubBarCount * 100;
             if (_AddCurrentValueToMessage) SubMessage = _SubMessageValue;
         }
+        private double _currSubStep = 0;
         /// <summary>
         /// сохраняет текущее состояние дополнительного бара
         /// </summary>
@@ -410,6 +441,26 @@ namespace Progress
             }
         }
         /// <summary>
+        /// число проходок дополнительного счетчика
+        /// </summary>
+        public double SubStepsCount
+        {
+            get
+            {
+                lock (Lock)
+                {
+                    return _SubStepsCount;
+                }
+            }
+            set
+            {
+                lock (Lock)
+                {
+                    if (value > 0) SetData(ref _SubStepsCount, value);                   
+                }
+            }
+        }
+        /// <summary>
         /// зависит ли основной счетчик от дополнительного?
         /// </summary>
         public bool BarLink
@@ -430,7 +481,7 @@ namespace Progress
             }
         }
         /// <summary>
-        /// число объектов прибавляющихся к дополнительному счетчику при одном шаге
+        /// закрыть окно
         /// </summary>
         public bool CloseWindow
         {
@@ -496,6 +547,7 @@ namespace Progress
         private double _CurrentSubStep = 0;
         private double _MainStep = 1;
         private double _SubStep = 1;
+        private double _SubStepsCount = 1;    
 
         private double _MainBarValue = 0;
         private double _SubBarValue = 0;
